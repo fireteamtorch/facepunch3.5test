@@ -13,13 +13,13 @@ using UnityEngine;
 // To access the client use Facepunch.Steamworks.Client.Instance, see SteamAvatar
 // for an example of doing this in a nice way.
 //
-public class SteamClient : MonoBehaviour
+public class UnitySteamClient : MonoBehaviour
 {
     public uint AppId;
 
     private Facepunch.Steamworks.Client client;
 
-	void Start ()
+    void Start()
     {
         // keep us around until the game closes
         GameObject.DontDestroyOnLoad(gameObject);
@@ -30,34 +30,47 @@ public class SteamClient : MonoBehaviour
         //
         // Configure us for this unity platform
         //
-        Facepunch.Steamworks.Config.ForUnity( Application.platform.ToString() );
+        Facepunch.Steamworks.Config.ForUnity(Application.platform.ToString());
+
+        //
+        // Create a steam_appid.txt (this seems greasy as fuck, but this is exactly
+        // what UE's Steamworks plugin does, so fuck it.
+        //
+        try
+        {
+            System.IO.File.WriteAllText("steam_appid.txt", AppId.ToString());
+        }
+        catch (System.Exception e)
+        {
+            Debug.LogWarning("Couldn't write steam_appid.txt: " + e.Message);
+        }
 
         // Create the client
-        client = new Facepunch.Steamworks.Client( AppId );
+        client = new Facepunch.Steamworks.Client(AppId);
 
-        if ( !client.IsValid )
+        if (!client.IsValid)
         {
             client = null;
             Debug.LogWarning("Couldn't initialize Steam");
             return;
         }
 
-        Debug.Log( "Steam Initialized: " + client.Username + " / " + client.SteamId ); 
-	}
-	
-	void Update()
+        Debug.Log("Steam Initialized: " + client.Username + " / " + client.SteamId);
+    }
+
+    void Update()
     {
         if (client == null)
             return;
 
         try
         {
-            UnityEngine.Profiling.Profiler.BeginSample("Steam Update");
+            // UnityEngine.Profiling.Profiler.BeginSample("Steam Update");
             client.Update();
         }
         finally
         {
-            UnityEngine.Profiling.Profiler.EndSample();
+            // UnityEngine.Profiling.Profiler.EndSample();
         }
     }
 

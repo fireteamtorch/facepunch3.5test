@@ -56,7 +56,7 @@ public class SteamManager  {
         }
         finally
         {
-            Debug.Log("What the fuck");
+            // Debug.Log("What the fuck");
             // UnityEngine.Profiling.Profiler.EndSample();
         }
     }

@@ -32,13 +32,15 @@ public class TestSteamFunction1 : MonoBehaviour {
             int[] shitToAdd = new int[num2add];
             for (int i = 0; i < num2add; i++)
             {
-                shitToAdd[i] = i;
+                shitToAdd[i] = int.MaxValue - i;
             }
             // bool isSuccess = testLeaderboard.AddScore(false, 500, 1,2,33,4,5);
             bool isSuccess = testLeaderboard.AddScore(false, -100, shitToAdd, null, null);
             Debug.Log("Add success: " + isSuccess);
-            uint datuint = 5;
-            int datint = -5;
+            //uint datuint = 4294967291;
+            //int datint = -5;
+            uint datuint = uint.MaxValue;
+            int datint = int.MinValue;
             Debug.Log("uint = " + datuint + ", cast int = " + (int)datuint);
             Debug.Log("int = " + datint + ", cast uint = " + (uint)datint);
         }

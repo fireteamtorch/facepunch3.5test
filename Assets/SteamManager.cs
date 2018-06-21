@@ -42,6 +42,7 @@ public class SteamManager  {
         }
 
         Debug.Log("Steam Initialized: " + client.Username + " / " + client.SteamId + " time: " + Time.time);
+
     }
 
     public static void UpdateClient()

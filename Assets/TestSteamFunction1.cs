@@ -13,15 +13,15 @@ public class TestSteamFunction1 : MonoBehaviour {
 
 	// Use this for initialization
 	void Start () {
-        SteamManager.StartClient();
+        // SteamManager.StartClient();
 	}
 	
 	// Update is called once per frame
 	void Update () {
-        SteamManager.UpdateClient();
+        // SteamManager.UpdateClient();
 
         if (testLeaderboard == null) {
-            testLeaderboard = SteamManager.client.GetLeaderboard("TestLeaderboard", Facepunch.Steamworks.Client.LeaderboardSortMethod.Ascending, Facepunch.Steamworks.Client.LeaderboardDisplayType.Numeric);
+            testLeaderboard = Facepunch.Steamworks.Client.Instance.GetLeaderboard("TestLeaderboard", Facepunch.Steamworks.Client.LeaderboardSortMethod.Ascending, Facepunch.Steamworks.Client.LeaderboardDisplayType.Numeric);
             //testLeaderboard.FetchScores(Facepunch.Steamworks.Leaderboard.RequestType.Global, 0, 100);
             //Debug.Log(testLeaderboard.Name + ", total entries:" + testLeaderboard.TotalEntries);
         }
@@ -149,6 +149,7 @@ public class TestSteamFunction1 : MonoBehaviour {
             testLeaderboard.FetchScores(Facepunch.Steamworks.Leaderboard.RequestType.Global, 0, testLeaderboard.TotalEntries);
             Debug.Log(testLeaderboard.Name + ", total entries:" + testLeaderboard.TotalEntries);
         }
+
         /*
         if(!testLeaderboard.IsQuerying && testLeaderboard.Results != null)
         {
@@ -175,14 +176,53 @@ public class TestSteamFunction1 : MonoBehaviour {
 
         if (Input.GetKeyDown(KeyCode.S))
         {
+            Debug.Log("Attempting overlay");
+            Facepunch.Steamworks.Client.Instance.Overlay.OpenProfile(76561198005817917);
+          
+        }
+
+        if (Input.GetKeyDown(KeyCode.P))
+        {
             Debug.Log("Attempting screenshot");
             Facepunch.Steamworks.Client.Instance.Screenshots.Trigger();
         }
 
-        if (Input.GetKeyDown(KeyCode.Print))
+        if (Input.GetKeyDown(KeyCode.Q))
         {
-            Debug.Log("Attempting screenshot");
-            Facepunch.Steamworks.Client.Instance.Screenshots.Trigger();
+            Debug.Log("Fetching achievements...");
+            Facepunch.Steamworks.Achievement[] allAchs = Facepunch.Steamworks.Client.Instance.Achievements.All;
+            foreach (Facepunch.Steamworks.Achievement currAch in allAchs)
+            {
+                Debug.Log("Achievent name: " + currAch.Name + ", description = " + currAch.Description + ", global percent = " + currAch.GlobalUnlockedPercentage);
+            }
+        }
+
+        if (Input.GetKeyDown(KeyCode.W))
+        {
+            Debug.Log("Fetching achievements...");
+            Facepunch.Steamworks.Achievement[] allAchs = Facepunch.Steamworks.Client.Instance.Achievements.All;
+            foreach (Facepunch.Steamworks.Achievement currAch in allAchs)
+            {
+                if (currAch.Name == "Interstellar")
+                {
+                    Debug.Log("Adding achievement Interstellar");
+                    currAch.Trigger();
+                }
+            }
+        }
+
+        if (Input.GetKeyDown(KeyCode.E))
+        {
+            Debug.Log("Fetching achievements...");
+            Facepunch.Steamworks.Achievement[] allAchs = Facepunch.Steamworks.Client.Instance.Achievements.All;
+            foreach (Facepunch.Steamworks.Achievement currAch in allAchs)
+            {
+                if (currAch.Name == "Interstellar")
+                {
+                    Debug.Log("Resetting achievement Interstellar");
+                    currAch.Reset();
+                }
+            }
         }
 
     }

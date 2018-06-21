@@ -43,7 +43,7 @@ public class SteamAvatar : MonoBehaviour
     {
         fetchDelayTimer += Time.deltaTime;
 
-        if(SteamManager.client != null && !isFetched && SteamId > 0)
+        if(Facepunch.Steamworks.Client.Instance != null && !isFetched && SteamId > 0)
         {
             Fetch(SteamId);
             isFetched = true;
@@ -106,7 +106,7 @@ public class SteamAvatar : MonoBehaviour
 
     private void CustomGetName()
     {
-        string tempString = SteamManager.client.Friends.GetName(SteamId);
+        string tempString = Facepunch.Steamworks.Client.Instance.Friends.GetName(SteamId);
         Debug.Log("tempString received: " + tempString);
         if (tempString != "[unknown]")
         {
@@ -206,6 +206,7 @@ public class SteamAvatar : MonoBehaviour
             //rawImage.texture = texture;
             rawImage.material.mainTexture = texture;
         }
-        nameTxtMesh.text = SteamManager.client.Friends.GetName(SteamId);
+        // nameTxtMesh.text = SteamManager.client.Friends.GetName(SteamId);
+        nameTxtMesh.text = Facepunch.Steamworks.Client.Instance.Friends.GetName(SteamId);
     }
 }

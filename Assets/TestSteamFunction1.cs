@@ -173,7 +173,19 @@ public class TestSteamFunction1 : MonoBehaviour {
         }
         */
 
-	}
+        if (Input.GetKeyDown(KeyCode.S))
+        {
+            Debug.Log("Attempting screenshot");
+            Facepunch.Steamworks.Client.Instance.Screenshots.Trigger();
+        }
+
+        if (Input.GetKeyDown(KeyCode.Print))
+        {
+            Debug.Log("Attempting screenshot");
+            Facepunch.Steamworks.Client.Instance.Screenshots.Trigger();
+        }
+
+    }
 
     public void onAddSuccess(bool i)
     {

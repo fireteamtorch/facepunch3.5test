@@ -3,7 +3,7 @@ using System.Collections;
 
 public class SteamManager  {
 
-    private static uint appId = 480;
+    private static uint appId = 10;
     public static Facepunch.Steamworks.Client client;
 
 

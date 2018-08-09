@@ -1,5 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections;
+using System;
+using System.IO;
 
 public class TestSteamFunction1 : MonoBehaviour {
 
@@ -11,16 +13,25 @@ public class TestSteamFunction1 : MonoBehaviour {
 
     public string outputFileString;
 
-	// Use this for initialization
-	void Start () {
+    public static string playerName = "jeff";
+    private static char fileSep = Path.DirectorySeparatorChar;
+    private static string saveFilePath = Application.persistentDataPath + fileSep + "save";
+    private static string saveFileName = "savefile_" + playerName + ".dat";
+
+    // Use this for initialization
+    void Start () {
         // SteamManager.StartClient();
-	}
+        Facepunch.Steamworks.Client.Instance.Lobby.OnLobbyJoined += onLobbyJoinSuccessCallback;
+        Facepunch.Steamworks.Client.Instance.Achievements.OnUpdated += onAchievementSuccessCallback;
+        Facepunch.Steamworks.Client.Instance.Achievements.OnAchievementStateChanged += onAchievementStateCallback;
+    }
 	
 	// Update is called once per frame
 	void Update () {
         // SteamManager.UpdateClient();
 
         if (testLeaderboard == null) {
+            Debug.Log("Fetching leaderboard...");
             testLeaderboard = Facepunch.Steamworks.Client.Instance.GetLeaderboard("TestLeaderboard", Facepunch.Steamworks.Client.LeaderboardSortMethod.Ascending, Facepunch.Steamworks.Client.LeaderboardDisplayType.Numeric);
             //testLeaderboard.FetchScores(Facepunch.Steamworks.Leaderboard.RequestType.Global, 0, 100);
             //Debug.Log(testLeaderboard.Name + ", total entries:" + testLeaderboard.TotalEntries);
@@ -29,7 +40,9 @@ public class TestSteamFunction1 : MonoBehaviour {
         // Add the shit
         if (Input.GetKeyDown(KeyCode.J))
         {
-            
+
+            Debug.Log("Adding score...");
+
             const string attachment = "123 facepunch! \n testing \t testlkjlkaegjl \n \n aflkhlaghjla";
             var tempRemoteFile = Facepunch.Steamworks.Client.Instance.RemoteStorage.CreateFile("remoteVideo.mp4");
             //file.WriteAllText(attachment);
@@ -70,7 +83,9 @@ public class TestSteamFunction1 : MonoBehaviour {
         if (Input.GetKeyDown(KeyCode.A))
         {
             //testLeaderboard = SteamManager.client.GetLeaderboard("TestLeaderboard", Facepunch.Steamworks.Client.LeaderboardSortMethod.Ascending, Facepunch.Steamworks.Client.LeaderboardDisplayType.Numeric);
-            //testLeaderboard.FetchScores(Facepunch.Steamworks.Leaderboard.RequestType.Global, 0, 100);d
+            //testLeaderboard = Facepunch.Steamworks.Client.Instance.GetLeaderboard("TestLeaderboard", Facepunch.Steamworks.Client.LeaderboardSortMethod.Ascending, Facepunch.Steamworks.Client.LeaderboardDisplayType.Numeric);
+            //testLeaderboard.FetchScores(Facepunch.Steamworks.Leaderboard.RequestType.Global, 0, 100);
+            Debug.Log("Attempting to fetch leaderboard results...");
             if (testLeaderboard.Results != null)
             {
                 Debug.Log(testLeaderboard.Name + ", total entries:" + testLeaderboard.TotalEntries);
@@ -79,7 +94,7 @@ public class TestSteamFunction1 : MonoBehaviour {
                     Debug.Log("rank: " + tempVar.GlobalRank + "\tname: " + tempVar.Name + "\tscore: " + tempVar.Score + "\tID: " + tempVar.SteamId);
                     if(tempVar.AttachedFile != null)
                     {
-                        Debug.Log(tempVar.AttachedFile.FileName);
+                        Debug.Log("Attached fileame: " + tempVar.AttachedFile.FileName);
                     }
                     /*
                     if (tempVar.SubScores != null)
@@ -91,6 +106,9 @@ public class TestSteamFunction1 : MonoBehaviour {
                     }
                     */
                 }
+            } else
+            {
+                Debug.Log("Leaderboard is null.");
             }
         }
 
@@ -145,7 +163,7 @@ public class TestSteamFunction1 : MonoBehaviour {
 
         if (Input.GetKeyDown(KeyCode.D))
         {
-
+            Debug.Log("Fetching leaderboard number of entries...");
             testLeaderboard.FetchScores(Facepunch.Steamworks.Leaderboard.RequestType.Global, 0, testLeaderboard.TotalEntries);
             Debug.Log(testLeaderboard.Name + ", total entries:" + testLeaderboard.TotalEntries);
         }
@@ -225,6 +243,43 @@ public class TestSteamFunction1 : MonoBehaviour {
             }
         }
 
+        if (Input.GetKeyDown(KeyCode.T))
+        {
+            Debug.Log("Fetching remote storage quota...");
+            ulong used = Facepunch.Steamworks.Client.Instance.RemoteStorage.QuotaUsed;
+            ulong total = Facepunch.Steamworks.Client.Instance.RemoteStorage.QuotaTotal;
+            ulong available = Facepunch.Steamworks.Client.Instance.RemoteStorage.QuotaRemaining;
+
+            bool isEnabledForAccount = Facepunch.Steamworks.Client.Instance.RemoteStorage.IsCloudEnabledForAccount;
+            bool isEnabledForApp = Facepunch.Steamworks.Client.Instance.RemoteStorage.IsCloudEnabledForApp;
+
+            Debug.Log("Steam cloud is enabled for account: " + isEnabledForAccount);
+            Debug.Log("Steam cloud is enabled for app: " + isEnabledForApp);
+
+            Debug.Log("Total quota: " + total + " bytes");
+            Debug.Log("Used: " + used + " bytes");
+            Debug.Log("Available: " + available + " bytes");
+        }
+
+        if (Input.GetKeyDown(KeyCode.Y))
+        {
+            string fullFileName = saveFilePath + fileSep + saveFileName;
+            byte[] data = readBytesFromLocalFile(fullFileName);
+            Debug.Log("Reading bytes in from local file. Length = " + data.Length);
+
+            bool success = Facepunch.Steamworks.Client.Instance.RemoteStorage.WriteBytes(saveFileName, data);
+            Debug.Log("Writing bytes to remote file. Success = " + success);
+        }
+
+        if (Input.GetKeyDown(KeyCode.U))
+        {
+            byte[] data = Facepunch.Steamworks.Client.Instance.RemoteStorage.ReadBytes(saveFileName);
+            Debug.Log("Reading bytes in from remote file. Length = " + data.Length);
+
+            string fullFileName = saveFilePath + fileSep + saveFileName;
+            writeBytesToLocalFile(fullFileName, data);
+        }
+
     }
 
     public void onAddSuccess(bool i)
@@ -235,6 +290,32 @@ public class TestSteamFunction1 : MonoBehaviour {
     public void onAddFailure(bool i)
     {
         Debug.Log("Score add unsuccessful");
+    }
+
+    void onLobbyJoinSuccessCallback(bool success)
+    {
+        Debug.Log("Lobby joined successfully.");
+    }
+
+    void onAchievementSuccessCallback()
+    {
+        Debug.Log("Achievement added successfully.");
+    }
+
+    void onAchievementStateCallback(Facepunch.Steamworks.Achievement input)
+    {
+        Debug.Log("Achievement " + input.Name + " changed successfully.");
+    }
+
+    public byte[] readBytesFromLocalFile(string filePath)
+    {
+        byte[] bytesRead = File.ReadAllBytes(filePath);
+        return bytesRead;
+    }
+
+    public void writeBytesToLocalFile(string filePath, byte[] data)
+    {
+        File.WriteAllBytes(filePath, data);
     }
 
 }
